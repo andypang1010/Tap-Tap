@@ -5,10 +5,10 @@ function SearchBar() {
     <Form className="d-flex container">
       <Form.Control
         type="search"
-        placeholder="Search menu"
+        placeholder="Search Menu"
         className="me-2 rounded-pill"
-        aria-label="Search menu"
-        style={{ "box-shadow": "0px 0px 10px -5px rgba(0,0,0,0.75)" }}
+        aria-label="Search Menu"
+        style={{ "box-shadow": "0px 0px 10px 0.5px rgba(0,0,0,0.1)" }}
       />
     </Form>
 
