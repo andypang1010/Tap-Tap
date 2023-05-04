@@ -5,8 +5,9 @@ import App from './components/App';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(
   <React.StrictMode>
-    <App />
+    <App name={"Sushizanmai Honten"} altName={"すしざんまい 本店"} />
   </React.StrictMode>
 );
