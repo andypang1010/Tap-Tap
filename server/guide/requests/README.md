@@ -1,10 +1,14 @@
 # All requests 
-# Overview
+## Overview
 The file document all the requests/responses: the precondition (expected input) and the specification(the expected reponse semantics). These will be classified based on the phase of action that clients perform in a specific page.
 <br /><br />
  &emsp;│&nbsp; scan the qrcode<br />
  &emsp;│  <br />
- &emsp;│── menu page<br />
+ &emsp;│── introduction page<br />
+ &emsp;│<br />
+ &emsp;│&nbsp; login/continue as a guest <br />
+ &emsp;│  <br />
+ &emsp;│── sign-up/login/guest <br />
  &emsp;│<br />
  &emsp;│&nbsp; add food and checkout<br />
  &emsp;│  <br />
@@ -18,7 +22,7 @@ The file document all the requests/responses: the precondition (expected input) 
  &emsp;│  <br />
  &emsp;│── sucess page
  
- # menu page
+## menu page
 ### render the menu
  *  ``` 
       request:
@@ -37,7 +41,11 @@ The file document all the requests/responses: the precondition (expected input) 
         2) send the menu of the restaurant with restaurant_uid and tableID
     ```
     
- # checkout page
+## login/signup/guest page
+### sign-up (TBD)
+    
+    
+## checkout page
 ### render the selected food and information
 *  ``` 
       request:
@@ -77,5 +85,21 @@ The file document all the requests/responses: the precondition (expected input) 
       
       semantics: same as above
     ```
+    
+    
+## payment page
+
+ ## make payment (TBD)
+*  ``` 
+      request:
+        path:
+        body: {
+        }
+        
+      response: {
+      }
+      
+      semantics: same as above
+
     
    
