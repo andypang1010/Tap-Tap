@@ -12,5 +12,9 @@
   "dependencies": {
     "firebase": "^9.22.0",
     "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "auto-load": "^3.0.4",
+    "compression": "^1.7.4"
   }
 }
