@@ -1,6 +1,7 @@
-const Item = (picture, name, description, ingredients, price) => {
-
-  return { picture, name, description, ingredients, price }
-};
+class Item {
+  constructor(picture, name, description, ingredients, price) {
+    Object.assign(this, { picture, name, description, ingredients, price })
+  }
+}
 
 export default Item;

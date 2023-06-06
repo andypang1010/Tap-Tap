@@ -1,27 +1,23 @@
-import Header from "./Header";
-import MenuSection from "./MenuSection";
-import SearchBar from "./SearchBar";
-import SectionsScroll from "./SectionsScroll";
-import Item from "../models/Item";
+import SelectedItem from "../pages/SelectedItem";
+import Menu from "../pages/Menu";
+import {
+  BrowserRouter as Router, Routes,
+  Route
+} from "react-router-dom";
 
-import itemPicture from "../media/mahmoud-fawzy-EqoCUzG9200-unsplash.jpg"
-import anotherItemPicture from "../media/mahmoud-fawzy-BOJ8RP7-VQA-unsplash.jpg"
-import moreItemPicture from "../media/Shrimp Roll.jpg"
+const name = "Sushizanmai Honten"
+const altName = "すしざんまい 本店"
 
-function App({ name, altName }) {
+function App() {
   document.title = name;
   return (
     <>
-      <Header name={name} altName={altName} />
-      <SearchBar />
-      <SectionsScroll sections={["Popular", "Appetizers", "Rolls", "Sashimi", "Sushi", "Rice", "Drinks"]} />
-      <MenuSection sectionName={"Popular"} items={
-        [
-          Item(itemPicture, "Salmon Roll", "8 Pieces Assorted Rolls", "Salmon, Cucumber, Rice...", 35),
-          Item(anotherItemPicture, "Crab Rice Bowl", "Delicious Bowl of Rice", "Crab, Rice, Sesame...", 40),
-          Item(moreItemPicture, "Avocado Tuna Sushi", "12 Pieces Deluxe Sushi", "Tuna, Avocado, Rice...", 45)
-        ]
-      } />
+      <Router>
+        <Routes>
+          <Route path="/" element={<Menu name={name} altName={altName} />} />
+          <Route path="/item" element={<SelectedItem />} />
+        </Routes>
+      </Router>
     </>
 
   );
