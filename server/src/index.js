@@ -1,6 +1,5 @@
 const path = require('path')
 
-console.log(process.env.NODE_ENV)
 //the state of server, export as a global object
 const JEAT = {
     IS_DEBUG: process.env.NODE_ENV == 'development', //configuration mode

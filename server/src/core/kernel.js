@@ -1,4 +1,5 @@
 const path = require('path')
+const autoload = require('auto-load')
 
 
 module.exports = {
@@ -16,7 +17,8 @@ module.exports = {
     async preBootMaster(){
         //TODO
         JEAT.logger.info(`initialization steps before the server starts`)
-        JEAT.db = require(path.join(JEAT.SERVERPATH,"db/firebase"))
+        JEAT.db = await require(path.join(JEAT.SERVERPATH,"db/firebase")).init()
+        JEAT.models = autoload(path.join(JEAT.SERVERPATH, 'models'))
     },
 
     /**
