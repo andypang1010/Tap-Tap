@@ -19,6 +19,7 @@ module.exports = {
         JEAT.logger.info(`initialization steps before the server starts`)
         JEAT.db = await require(path.join(JEAT.SERVERPATH,"db/firebase")).init()
         JEAT.models = autoload(path.join(JEAT.SERVERPATH, 'models'))
+        JEAT.type = require("./type")
     },
 
     /**
