@@ -26,8 +26,8 @@ The file document all the requests/responses: the precondition (expected input) 
 ### render the menu
  *  ``` 
       request:
-        path: /checkout
-        body: {
+        path: /getMenu
+        query: {
           restaurant_uid: String,
           tableID: String
         }
