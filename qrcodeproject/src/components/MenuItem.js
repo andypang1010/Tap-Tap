@@ -18,7 +18,7 @@ const menuItemStyle = {
 };
 
 const itemImgStyle = {
-  width: "45%",
+  width: "40%",
   height: "100%",
   objectFit: "cover",
   float: "right",
@@ -26,7 +26,7 @@ const itemImgStyle = {
 
 const itemTextStyle = {
   marginTop: "20px",
-  width: "53%",
+  width: "58%",
   float: "left"
 }
 
@@ -48,7 +48,7 @@ function MenuItem({ image, name, description, ingredients, price }) {
               <p style={{ "marginBottom": "0px" }}>{description}</p>
               <p style={{ "marginBottom": "10px" }}>{ingredients}</p>
             </div>
-            <p>{"$" + price.toFixed(2).toString()}</p>
+            <p className={"bold"}>{"$" + price.toFixed(2).toString()}</p>
           </div>
         </div>
       </div>
