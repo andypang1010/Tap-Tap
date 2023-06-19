@@ -29,12 +29,6 @@ module.exports = async () => {
     app.use('/auth', ctrl.auth)
 
 
-    app.use((e, req, res) => {
-        const err = e || 404
-        res.status(err)
-    })
-
-
     app.listen("8008",()=>{
         JEAT.logger.info("HTTP Server: [ RUNNING ]")
     })

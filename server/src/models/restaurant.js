@@ -200,7 +200,7 @@ module.exports = class restaurant{
             if(menu_item.length ==1){
                 new_cart.push({
                     name:menu_item[0].name,
-                    price:menu_item[0].price,
+                    price:menu_item[0].discountPrice,
                     time:cart_item.time
                 })
                 total_price+=cart_item.time*menu_item[0].discountPrice
