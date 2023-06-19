@@ -29,11 +29,11 @@ module.exports = async () => {
     app.use('/auth', ctrl.auth)
 
 
-    app.use((req, res, next) => {
-        const err = new Error('Not Found')
-        err.status = 404
-        next(err)
-      })
+    app.use((e, req, res) => {
+        const err = e || new Error('Not Found')
+        err.status = e.status|| 404
+        res.status(err.status)
+    })
 
 
     app.listen("8008",()=>{

@@ -39,6 +39,7 @@ module.exports = class restaurant{
         if(!JEAT.type.restaurant(opts)){
             err_message = "fail to register, type checker fail to check the restaurant object";
             JEAT.logger.warn(err_message);
+            throw(err_message)
         }
 
         //check if the username is duplicated
@@ -46,6 +47,7 @@ module.exports = class restaurant{
         if(dup.exists){
             err_message = "fail to register, the username is already used"
             JEAT.logger.warn(err_message);
+            throw(err_message)
         }
 
         //check if the restaurant name is duplicated
@@ -62,12 +64,7 @@ module.exports = class restaurant{
 
         //create the restaurant
         const object = this.createRestaurant(opts)
-
-        if(err_message){
-            throw(err_message)
-        }else{
-            return object
-        }
+        return object
     }
 
     /**
@@ -135,6 +132,13 @@ module.exports = class restaurant{
      * check the access, re-render the cart
      */
     static async checkCart(opts){
+        let err_message;
+        //check the type of the cart opts
+        if(!(JEAT.type.cart(opts))){
+            err_message = "fail to get type of opts for a cart"
+            JEAT.logger.warn(err_message)
+            throw(err_message)
+        }
        const menu = await this.getMenu({
             username:opts.username,
             table:opts.table
