@@ -109,10 +109,58 @@ module.exports = class restaurant{
             throw(err_message)
 
         }
-
         return target.data().menu
     }
 
+    /**
+     * update the menu for a given restaurant
+     * input: expected an array of object
+     * return the new menu
+     */
+    static async updateMenu(opts){
+        if(!JEAT.type.menu(opts.menu)){
+            err_message = "fail to update menu, type checker fail to check the menu";
+            JEAT.logger.warn(err_message);
+            throw(err_message)
+        }
+
+        let err_message;
+        const target = await this.getRestaurant(opts.username)
+        if(!this.checkRestaurantValid(target)){
+            err_message = "fail to update Menu, restaurant is not valid"
+            JEAT.logger.warn(err_message)
+            throw(err_message)
+        }
+
+        //update the menu
+        await col.doc(opts.username).update({
+            menu:opts.menu
+        })
+
+        return await this.getMenu({...opts,table:0})
+    }
+
+    static async updateInfo(opts){
+        let err_message;
+
+        if(!JEAT.type.restaurantInfo(opts)){
+            err_message = "fail to update restaurant info, type checker fail to check the info";
+            JEAT.logger.warn(err_message);
+            throw(err_message)
+        }
+
+        const target = await this.getRestaurant(opts.username)
+        if(!this.checkRestaurantValid(target)){
+            err_message = "fail to update restaurant info, restaurant is not valid"
+            JEAT.logger.warn(err_message)
+            throw(err_message)
+        }
+
+        //update the menu
+        await col.doc(opts.username).update(opts)
+
+        return await this.getInfo({...opts,table:0})
+    }
     /**
      * get general information for a restaurant
      */
@@ -162,12 +210,4 @@ module.exports = class restaurant{
        return {cart:new_cart,total_price}
     }
 
-    /**
-     * update the menu for a given restaurant
-     * input: expected an array of object
-     * return the new menu
-     */
-    static async updateMenu(){
-
-    }
 }

@@ -12,12 +12,9 @@ module.exports = {
                 typeof opts.description !== "string" ||
                 typeof opts.phone !== "string" ||
                 typeof opts.maxTable !== "number" ||
-                !Array.isArray(opts.menu)
+                !JEAT.type.menu(opts.menu)
                 )
             return false
-            opts.menu.forEach(item=>{
-               if(! JEAT.type.item(item)) throw(new Error())
-            })
         }catch(e){
             JEAT.logger.error("type checker report a error for creating restaurant object")
             JEAT.logger.error(e)
@@ -25,6 +22,40 @@ module.exports = {
         }
         return true
     },
+
+    restaurantInfo(opts){
+        try{
+            if( typeof opts.name !== "string" ||
+                typeof opts.username !== "string" ||
+                typeof opts.loc !== "string" ||
+                typeof opts.size !== "number" ||
+                typeof opts.description !== "string" ||
+                typeof opts.phone !== "string" ||
+                typeof opts.maxTable !== "number"
+                )
+            return false
+        }catch(e){
+            JEAT.logger.error("type checker report a error for creating restaurant object")
+            JEAT.logger.error(e)
+            return false
+        }
+        return true
+    },
+
+    menu(opts){
+        try{
+            if(!Array.isArray(opts)) return false
+            opts.forEach(item=>{
+                if(! JEAT.type.item(item)) throw(new Error())
+             })
+        }catch(e){
+            JEAT.logger.error("type checker report a error for checking a menu")
+            JEAT.logger.error(e)
+            return false
+        }
+        return true
+    },
+
     item(opts){
         try{
             if( typeof opts.name !== "string" ||
@@ -46,6 +77,7 @@ module.exports = {
         }
         return true
     },
+
     cart(opts){
         try{
             if( typeof opts.username !== "string" ||
