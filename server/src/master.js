@@ -30,9 +30,8 @@ module.exports = async () => {
 
 
     app.use((e, req, res) => {
-        const err = e || new Error('Not Found')
-        err.status = e.status|| 404
-        res.status(err.status)
+        const err = e || 404
+        res.status(err)
     })
 
 

@@ -9,7 +9,7 @@ router.get("/getMenu", async(req,res,next)=>{
         const table = req.query.table;
         if(!name || !table){
             JEAT.logger.error("fail to get menu, the query is undefined")
-            res.send(502)
+            res.status(502).send("fail to get menu, the query is undefined")
             return
         }
         const menu = await JEAT.models.restaurant.getMenu({
@@ -18,7 +18,7 @@ router.get("/getMenu", async(req,res,next)=>{
         })
         res.send(menu)
     }catch(e){
-        next(e)
+        res.status(500).send(e.message)
     }
 })
 
@@ -29,7 +29,7 @@ router.get("/getInfo", async(req,res,next)=>{
         const table = req.query.table;
         if(!name || !table){
             JEAT.logger.error("fail to get info, the query is undefined")
-            res.send(502)
+            res.status(502).send("fail to get info, the query is undefined")
             return
         }
         const info = await JEAT.models.restaurant.getInfo({
@@ -38,7 +38,7 @@ router.get("/getInfo", async(req,res,next)=>{
         })
         res.send(info)
     }catch(e){
-        next(e)
+        res.status(500).send(e.message)
     }
 })
 
@@ -52,7 +52,7 @@ router.post("/checkCart", async(req,res,next)=>{
         const table = req.query.table;
         if(!name || !table){
             JEAT.logger.error("fail to check the cart, the query is undefined")
-            res.send(502)
+            res.status(502).send("fail to check the cart, the query is undefined")
             return
         }
 
@@ -68,7 +68,7 @@ router.post("/checkCart", async(req,res,next)=>{
 
         res.send(new_cart)
     }catch(e){
-        next(e)
+        res.status(500).send(e.message)
     }
 })
 module.exports = router

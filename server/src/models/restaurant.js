@@ -155,7 +155,7 @@ module.exports = class restaurant{
                     price:menu_item[0].price,
                     time:cart_item.time
                 })
-                total_price+=cart_item.time*menu_item[0].price
+                total_price+=cart_item.time*menu_item[0].discountPrice
             }
        })
 

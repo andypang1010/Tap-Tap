@@ -14,6 +14,7 @@
     "winston": "^3.8.2"
   },
   "devDependencies": {
+    "aes-encryption": "^1.0.4",
     "auto-load": "^3.0.4",
     "compression": "^1.7.4",
     "dotenv": "^16.1.4",
