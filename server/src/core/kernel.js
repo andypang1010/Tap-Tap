@@ -1,5 +1,6 @@
 const path = require('path')
 const autoload = require('auto-load')
+const dotenv = require('dotenv');
 
 
 module.exports = {
@@ -20,6 +21,7 @@ module.exports = {
         JEAT.db = await require(path.join(JEAT.SERVERPATH,"db/firebase")).init()
         JEAT.models = autoload(path.join(JEAT.SERVERPATH, 'models'))
         JEAT.type = require("./type")
+        JEAT.env = dotenv.config().parsed;
     },
 
     /**
@@ -28,5 +30,5 @@ module.exports = {
     async bootMaster(){
         JEAT.logger.info(`start booting the server`)
         await require('../master')()
-    },
+        },
 }

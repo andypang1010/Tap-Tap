@@ -16,10 +16,10 @@ module.exports = class restaurant{
 
         const res_object = await col.doc(opts.username).set(opts);
         await col.doc(opts.username).update({
+            isValid:true,
             createAt:new Date(),
             updateAt:new Date()
         })
-
 
         return res_object
     }
@@ -42,11 +42,17 @@ module.exports = class restaurant{
         }
 
         //check if the username is duplicated
-        const dup = await col.doc(opts.username).get()
+        let dup = await col.doc(opts.username).get()
         if(dup.exists){
             err_message = "fail to register, the username is already used"
             JEAT.logger.warn(err_message);
         }
+
+        //check if the restaurant name is duplicated
+        /*if(await this.checkRestaurantExist(opts.name)){
+            err_message = "fail to register, the restaurant is already used"
+            JEAT.logger.warn(err_message);
+        }*/
 
         //check if password match the regex
         if(!passwordRegex.test(opts.password)){
@@ -67,18 +73,91 @@ module.exports = class restaurant{
     /**
      * get restaurant by username(unique)
      * */
-    static async getRestaurant(username){
-        const result = await col.doc(username)
-        if(!result.empty){
-            console.log(result)
-        }
+    static async getRestaurant(uname){
+        const result = await col.doc(uname).get()
+        return result
     }
+
+    /**
+     * check the existence of restaurant by the name
+     * */
+    static checkRestaurantExist(target){
+        return target.exists
+    }
+
+      /**
+     * check the validity of restaurant by the name
+     * */
+      static checkRestaurantValid(target){
+        return target.exists&& target.data().isValid
+    }
+
+
+    /**
+     * check the existence of the table
+     * */
+    static checkRestaurantTable(target,table){
+        return this.checkRestaurantValid(target) && (target.data().maxTable >= table)
+    }
+
     /**
      * get the menu for a restaurant
      */
-    static async getMenu(){
+    static async getMenu(opts){
+        let err_message;
+        const target = await this.getRestaurant(opts.username)
+        if(!this.checkRestaurantTable(target,opts.table)){
+            err_message = "fail to get Menu, restaurant or table is not valid"
+            JEAT.logger.warn(err_message)
+            throw(err_message)
 
+        }
+
+        return target.data().menu
     }
+
+    /**
+     * get general information for a restaurant
+     */
+    static async getInfo(opts){
+        let err_message;
+        const target = await this.getRestaurant(opts.username)
+        if(!this.checkRestaurantTable(target,opts.table)){
+            err_message = "fail to get information of the restaurant, restaurant or table is not valid"
+            JEAT.logger.warn(err_message)
+            throw(err_message)
+        }
+        let {name,description,loc,maxTable,size,phone} = target.data();
+        return {name,description,loc,maxTable,size,phone}
+    }
+
+    /**
+     * check the access, re-render the cart
+     */
+    static async checkCart(opts){
+       const menu = await this.getMenu({
+            username:opts.username,
+            table:opts.table
+       });
+
+       let total_price = 0;
+       const new_cart =[]
+       opts.cart.forEach((cart_item)=>{
+            let menu_item = menu.filter((item)=>item.availability && item.name === cart_item.name);
+            //the cart_item exist in menu and available
+            if(menu_item.length ==1){
+                new_cart.push({
+                    name:menu_item[0].name,
+                    price:menu_item[0].price,
+                    time:cart_item.time
+                })
+                total_price+=cart_item.time*menu_item[0].price
+            }
+       })
+
+       return {cart:new_cart,total_price}
+    }
+
     /**
      * update the menu for a given restaurant
      * input: expected an array of object

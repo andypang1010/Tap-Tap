@@ -21,9 +21,13 @@ module.exports = async () => {
 
     //TODO: add security middleware (portable from WIKI) to prevent XXS
     //app.use(mw.security)
+    app.use(express.json());
 
+    app.use(express.urlencoded({ extended: true }));
 
     app.use('/', ctrl.common)
+    app.use('/auth', ctrl.auth)
+
 
     app.use((req, res, next) => {
         const err = new Error('Not Found')
@@ -31,17 +35,6 @@ module.exports = async () => {
         next(err)
       })
 
-    console.log(JEAT.models.restaurant.register({
-        name: "Jeffery's bar",
-        username:"jefferywcg12345",
-        password:"Jeffad12,56.",
-        loc: "888 5th avenue NY",
-        size: 100,
-        description:"this restaurant is dope",
-        menu:[],
-        phone: "123-123-123"
-      }))
-      //JEAT.models.restaurant.getRestaurant("jefferywcg123456")
 
     app.listen("8008",()=>{
         JEAT.logger.info("HTTP Server: [ RUNNING ]")

@@ -11,7 +11,8 @@ module.exports = {
                 typeof opts.size === "number" &&
                 typeof opts.description === "string" &&
                 typeof opts.menu === "object" &&
-                typeof opts.phone === "string"
+                typeof opts.phone === "string" &&
+                typeof opts.maxTable === "number"
                 )
             return true
         }catch(e){
