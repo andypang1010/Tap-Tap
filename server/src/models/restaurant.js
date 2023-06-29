@@ -70,44 +70,65 @@ module.exports = class restaurant{
     /**
      * 
      * */
-    static async openTab(opts,table){
+    static async openTab(opts){
         const target = await this.getRestaurant(opts.username)
-        console.log(target.data());
-        if (target.data().tables[table]) {
-            JEAT.logger.error("Table is already occupied");
-            return
+        if (target.data().tables[opts.table]) {
+            JEAT.logger.error("failed to open tab, table is already occupied");
+            return -1
         }
 
-        target.data().tables[table] = [];
-
-        console.log(target.data());
+        let tables = target.data().tables;
+        tables[opts.table] = [];
 
         await col.doc(opts.username).update({
-            tables:target.data().tables
+            tables:tables
         })
-
-        console.log(target.data());
-
-        setTimeout(() => {
-            this.closeTab(opts,table);
-        }, 120 * 60 * 1000);
 
         return
     }
 
-    static async closeTab(opts,table){
+    static async closeTab(opts){
         const target = await this.getRestaurant(opts.username);
 
-        if (!target.data().tables[table]) {
-            JEAT.logger.error("No tab open at this table");
-            return
+        if (target.data().tables[opts.table] === undefined) {
+            JEAT.logger.warn("no tab open at table");
+            return 1
         }
-        delete target.data().tables[table]
+
+        let tables = target.data().tables;
+        delete tables[opts.table]
+
         await col.doc(opts.username).update({
-            tables:target.data().tables
+            tables:tables
         })
 
         return
+    }
+
+    static async addToTab(opts){
+        const target = await this.getRestaurant(opts.username);
+
+        if (target.data().tables[opts.table] === undefined) {
+            JEAT.logger.error("failed to add to tab, no tab open at table");
+            return -1
+        }
+
+        let tables = target.data().tables;
+        let menu = target.data().menu;
+
+        for (let i = 0; i < menu.length; i++) {
+            if (menu[i].name === opts.item) {
+                tables[opts.table].push(opts.item);
+                await col.doc(opts.username).update({
+                    tables:tables
+                })
+                
+                return
+            }
+        }
+
+        JEAT.logger.error("failed to add to tab, item not found on menu");
+        return -2
     }
 
     /**
