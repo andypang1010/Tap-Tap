@@ -14,13 +14,14 @@ function getHash(keyString){
 
 
 const data= {
-    username:"jefferywcg1234",
+    username:"jefferywcg319668515",
     name:"jeffery's new bar"+ (Math.floor)(Math.random()*1000000),
     loc: "888 5th avenue NY",
     size: 120,
     description:"this restaurant is dope",
     phone: "123-123-123",
     maxTable: 100,
+    tables: {},
 }
 
 let plaintext=JSON.stringify(data)

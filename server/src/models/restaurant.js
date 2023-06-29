@@ -68,6 +68,49 @@ module.exports = class restaurant{
     }
 
     /**
+     * 
+     * */
+    static async openTab(opts,table){
+        const target = await this.getRestaurant(opts.username)
+        console.log(target.data());
+        if (target.data().tables[table]) {
+            JEAT.logger.error("Table is already occupied");
+            return
+        }
+
+        target.data().tables[table] = [];
+
+        console.log(target.data());
+
+        await col.doc(opts.username).update({
+            tables:target.data().tables
+        })
+
+        console.log(target.data());
+
+        setTimeout(() => {
+            this.closeTab(opts,table);
+        }, 120 * 60 * 1000);
+
+        return
+    }
+
+    static async closeTab(opts,table){
+        const target = await this.getRestaurant(opts.username);
+
+        if (!target.data().tables[table]) {
+            JEAT.logger.error("No tab open at this table");
+            return
+        }
+        delete target.data().tables[table]
+        await col.doc(opts.username).update({
+            tables:target.data().tables
+        })
+
+        return
+    }
+
+    /**
      * get restaurant by username(unique)
      * */
     static async getRestaurant(uname){
@@ -82,13 +125,12 @@ module.exports = class restaurant{
         return target.exists
     }
 
-      /**
+    /**
      * check the validity of restaurant by the name
      * */
-      static checkRestaurantValid(target){
+    static checkRestaurantValid(target){
         return target.exists&& target.data().isValid
     }
-
 
     /**
      * check the existence of the table
@@ -172,8 +214,9 @@ module.exports = class restaurant{
             JEAT.logger.warn(err_message)
             throw(err_message)
         }
-        let {name,description,loc,maxTable,size,phone} = target.data();
-        return {name,description,loc,maxTable,size,phone}
+        JEAT.logger.info(opts.table);
+        let {name,description,loc,maxTable,size,phone,tables} = target.data();
+        return {name,description,loc,maxTable,size,phone,tables}
     }
 
     /**

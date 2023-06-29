@@ -53,6 +53,7 @@ const data= {
     ],
     phone: "123-123-123",
     maxTable: 100,
+    tables: {},
 }
 
 let plaintext=JSON.stringify(data)
