@@ -67,14 +67,26 @@ module.exports = class restaurant{
         return object
     }
 
-    /**
-     * 
-     * */
+    static async viewTab(opts){
+        const target = await this.getRestaurant(opts.username)
+        if (target.data().tables[opts.table] === undefined) {
+            JEAT.logger.error(`failed to view tab, table ${opts.table} has no open tab`);
+            return -1
+        }
+
+        return target.data().tables[opts.table];
+    }
+
     static async openTab(opts){
         const target = await this.getRestaurant(opts.username)
         if (target.data().tables[opts.table]) {
-            JEAT.logger.error("failed to open tab, table is already occupied");
+            JEAT.logger.error(`failed to open tab, table ${opts.table} is already occupied`);
             return -1
+        }
+
+        if(!this.checkRestaurantTable(target,opts.table)){
+            JEAT.logger.error("restaurant or table is not valid");
+            return -2
         }
 
         let tables = target.data().tables;
@@ -91,7 +103,7 @@ module.exports = class restaurant{
         const target = await this.getRestaurant(opts.username);
 
         if (target.data().tables[opts.table] === undefined) {
-            JEAT.logger.warn("no tab open at table");
+            JEAT.logger.warn(`no tab open at table ${opts.table}`);
             return 1
         }
 
@@ -109,7 +121,7 @@ module.exports = class restaurant{
         const target = await this.getRestaurant(opts.username);
 
         if (target.data().tables[opts.table] === undefined) {
-            JEAT.logger.error("failed to add to tab, no tab open at table");
+            JEAT.logger.error(`failed to add to tab, no tab open at table ${opts.table}`);
             return -1
         }
 
@@ -127,7 +139,7 @@ module.exports = class restaurant{
             }
         }
 
-        JEAT.logger.error("failed to add to tab, item not found on menu");
+        JEAT.logger.error(`failed to add to tab, item ${opts.item} not found on menu`);
         return -2
     }
 
