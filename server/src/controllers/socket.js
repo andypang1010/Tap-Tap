@@ -34,9 +34,6 @@ function handleSocketEvents(socket) {
         try {
             const name = data.restaurantName;
             const table = data.table;
-
-            console.log("Got to opentab")
-
             if (!name || !table) {
                 JEAT.logger.error('failed to open tab, the query is undefined');
                 socket.emit('error', 'failed to open tab, the query is undefined');
