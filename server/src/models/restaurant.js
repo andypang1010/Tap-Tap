@@ -67,10 +67,10 @@ module.exports = class restaurant{
         return object
     }
 
-    static async viewTab(opts){
+    static async getTab(opts){
         const target = await this.getRestaurant(opts.username)
         if (target.data().tables[opts.table] === undefined) {
-            JEAT.logger.error(`failed to view tab, table ${opts.table} has no open tab`);
+            JEAT.logger.error(`failed to get tab, table ${opts.table} has no open tab`);
             return -1
         }
 

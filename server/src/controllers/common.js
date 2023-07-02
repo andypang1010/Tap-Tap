@@ -15,8 +15,7 @@ router.use(session({
         const table = req.query.table;
         if(!name || !table){
             JEAT.logger.error("fail, the query is undefined")
-            res.status(502).send("fail, the query is undefined")
-            return
+            return res.status(402).send("fail, the query is undefined")
         }
         
         res.send()
@@ -25,7 +24,19 @@ router.use(session({
     }
 })*/
 
-router.get("/:restaurantName/viewTab", async(req,res,next)=> {
+router.get("/", async(req,res,next)=> {
+    try{
+        console.log(req.session.loggedin)
+        req.session.loggedin = true;
+        
+        res.send()
+    }catch(e){
+        res.status(500).send(e.message)
+    }
+})
+
+//get list of items in table's tab
+router.get("/:restaurantName/getTab", async(req,res,next)=> {
     try{
         const name = req.params.restaurantName;
         const table = req.query.table;
@@ -35,15 +46,16 @@ router.get("/:restaurantName/viewTab", async(req,res,next)=> {
             return
         }
 
-        let val = await JEAT.models.restaurant.viewTab({ 
+        let val = await JEAT.models.restaurant.getTab({ 
             username:name, 
             table, 
         });
 
+        //error flags
         if (val == -1)
-            return res.status(403).send(`failed to view tab, table ${table} has no open tab`);
+            return res.status(403).send(`failed to get tab, table ${table} has no open tab`);
         
-        res.send(val);
+        res.json({ "table" : val, "personal" : req.session.tab || [] });
     }catch(e){
         res.status(500).send(e.message)
     }
@@ -64,6 +76,7 @@ router.get('/:restaurantName/openTab', async(req,res,next)=> {
             table, 
         })
 
+        //error flags
         if (val == -1)
             return res.status(403).send(`failed to open tab, table ${table} is already occupied`)
         else if (val == -2)
@@ -85,6 +98,7 @@ router.get('/:restaurantName/closeTab', async(req,res,next)=> {
             return res.status(502).send("failed to close tab, the query is undefined")
         }
 
+        //warning flags
         if (await JEAT.models.restaurant.closeTab({ username:name, table, }) == 1)
             return res.status(203).send(`no tab to close at table ${table}`);
         
@@ -112,10 +126,15 @@ router.get('/:restaurantName/addToTab', async(req,res,next) => {
             item,
         })
 
+        //error flags
         if (val == -1)
             return res.status(404).send(`failed to add to tab, no tab open at table ${table }`);
         else if (val == -2)
             return res.status(404).send(`failed to add to tab, item ${item} not on menu`);
+
+        let tab = req.session.tab || [];
+        tab.push(item);
+        req.session.tab = tab;
 
         res.send(`Added x1 ${item} to tab at table ${table}`);
 
