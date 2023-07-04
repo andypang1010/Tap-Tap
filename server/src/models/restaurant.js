@@ -92,10 +92,27 @@ module.exports = class restaurant{
         tables[opts.table][opts.itemNumber].status = opts.status;
 
         await col.doc(opts.username).update({
-            tables:tables
+            tables:tables,
+            updateAt:new Date()
         })
 
         return formerStatus;
+    }
+
+    // used primarily in testing
+    static async setTab(opts){
+        const target = await this.getRestaurant(opts.username)
+
+        let tables = target.data().tables;
+
+        tables[opts.table] = opts.tab;
+
+        await col.doc(opts.username).update({
+            tables:tables,
+            updateAt:new Date()
+        })
+
+        return
     }
 
     static async getTab(opts){
@@ -124,7 +141,8 @@ module.exports = class restaurant{
         tables[opts.table] = [];
 
         await col.doc(opts.username).update({
-            tables:tables
+            tables:tables,
+            updateAt:new Date()
         })
 
         return
@@ -142,7 +160,8 @@ module.exports = class restaurant{
         delete tables[opts.table]
 
         await col.doc(opts.username).update({
-            tables:tables
+            tables:tables,
+            updateAt:new Date()
         })
 
         return
@@ -167,13 +186,24 @@ module.exports = class restaurant{
         let tables = target.data().tables;
         let menu = target.data().menu;
 
-        const data = { "item-name" : item, "quantity" : quantity, "special-instructions" : instructions, "status" : tabStatus.ORDER_PLACED};
-
         for (let i = 0; i < menu.length; i++) {
             if (menu[i].name === item) {
-                tables[opts.table].push(data);
+
+                let found = false;
+                for (let object of tables[opts.table]) {
+                    if ((object.item.name === item) && (object.status === tabStatus.ORDER_PLACED)) {
+                        object.quantity += quantity
+                        found = true;
+                    }
+                }
+                if(!found) {
+                    const data = { "item" : menu[i], "quantity" : quantity, "special_instructions" : instructions, "status" : tabStatus.ORDER_PLACED};
+                    tables[opts.table].push(data);
+                }
+
                 await col.doc(opts.username).update({
-                    tables:tables
+                    tables:tables,
+                    updateAt:new Date()
                 })
                 
                 return
@@ -187,23 +217,24 @@ module.exports = class restaurant{
     static async cancelItem(opts){
         const target = await this.getRestaurant(opts.username);
         if(target.data().tables[opts.table][opts.itemNumber] === undefined){
-            JEAT.logger.error(`failed to move item ${opts.itemNumber} to status ${opts.status}, item number does not exist at table`)
+            JEAT.logger.error(`failed to cancel item, item number does not exist at table`)
             return -1
         }
 
         if(!this.checkQuantityValid(target, opts.quantity)){
-            JEAT.logger.error(`failed to add to tab, quantity ${opts.quantity} is not valid`)
+            JEAT.logger.error(`failed to cancel item, quantity ${opts.quantity} is not valid`)
             return -2
         }
 
         let tables = target.data().tables;
 
-        if(tables[opts.table][opts.itemNumber].quantity <= opts.quantity) {
-            if(tables[opts.table].length == 1) {
-                delete tables[opts.table]
-            } else {
-                tables[opts.table].splice(opts.itemNumber, 1);
-            }
+        if (tables[opts.table][opts.itemNumber].status !== 'Order Placed') {
+            JEAT.logger.error(`failed to cancel item, item can only be canceled while in 'Order Placed' status`)
+            return -3
+        }
+
+        if((tables[opts.table][opts.itemNumber].quantity <= opts.quantity) || (opts.quantity === 0)) {
+            tables[opts.table].splice(opts.itemNumber, 1);
         } else {
             tables[opts.table][opts.itemNumber].quantity -= opts.quantity;
         }
@@ -214,7 +245,8 @@ module.exports = class restaurant{
         }
 
         await col.doc(opts.username).update({
-            tables:tables
+            tables:tables,
+            updateAt:new Date()
         })
 
         return
@@ -271,20 +303,21 @@ module.exports = class restaurant{
         let valid = -1;
         if(Object.values(tabStatus).includes(formerStatus) && Object.values(tabStatus).includes(newStatus)) {
             switch (newStatus) {
-                case 'Order Prepared':
-                    (formerStatus === 'Order Placed') ? valid = true : valid = false
+                case tabStatus.ORDER_PREPARED:
+                    (formerStatus === tabStatus.ORDER_PLACED || formerStatus === tabStatus.ORDER_ERR) ? valid = true : valid = false
                     break
-                case 'Order Delivered':
-                    (formerStatus === 'Order Placed' || formerStatus === 'Order Prepared') ? valid = true : valid = false
+                case tabStatus.ORDER_DELIVERED:
+                    (formerStatus === tabStatus.ORDER_PLACED || formerStatus === tabStatus.ORDER_PREPARED 
+                        || formerStatus === tabStatus.ORDER_ERR) ? valid = true : valid = false
                     break
-                case 'Payment Completed':
-                    (formerStatus === 'Order Placed' || formerStatus === 'Order Prepared' || formerStatus === 'Order Delivered' || formerStatus === 'Payment Failed') ? valid = true : valid = false
+                case tabStatus.PAYMENT_COMPLETED:
+                    (formerStatus !== tabStatus.PAYMENT_COMPLETED) ? valid = true : valid = false
                     break
-                case 'Payment Failed':
-                    (formerStatus === 'Order Placed' || formerStatus === 'Order Prepared' || formerStatus === 'Order Delivered') ? valid = true : valid = false
+                case tabStatus.PAYMENT_FAILED:
+                    (formerStatus !== tabStatus.PAYMENT_COMPLETED) ? valid = true : valid = false
                     break
-                case 'Order is in error state':
-                    (formerStatus !== 'Order is in error state') ? valid = true : valid = false
+                case tabStatus.ORDER_ERR:
+                    (formerStatus !== tabStatus.ORDER_ERR || formerStatus !== tabStatus.PAYMENT_COMPLETED) ? valid = true : valid = false
                     break
                 default:
                     valid = false;

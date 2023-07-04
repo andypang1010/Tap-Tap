@@ -192,6 +192,12 @@ function handleSocketEvents(socket) {
             } else if (val === -2) {
                 socket.emit('error', 'failed to open tab, restaurant or table is not valid');
                 return;
+            } else if (val === -3) {
+                socket.emit('error', `failed to cancel item, item can only be canceled while in the 'Order Placed' status`);
+                return;
+            } else if (val === 1) {
+                socket.emit('warning', `no tab open at table ${table}`);
+                return;
             }
 
         } catch (e) {
