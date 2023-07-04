@@ -40,8 +40,8 @@ function handleSocketPaymentEvents(socket) {
             		object.status = tabStatus.PAYMENT_COMPLETED;
             	}
             }
-
-            if (line_items === []) {
+            
+            if (line_items.length === 0) {
             	JEAT.logger.error('failed to checkout, no items to pay for');
             	socket.emit('error', `failed to checkout, no items to pay for`);
             	return;
