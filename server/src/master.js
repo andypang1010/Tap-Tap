@@ -6,6 +6,7 @@ const path = require('path')
 const compression = require('compression')
 const http = require('http')
 const { Server } = require('socket.io')
+const socketControllers = require('./controllers/socketControllers/socketControllers')
 
 let apiFile = require('./api/env_api.json')
 const stripe = require('stripe')(apiFile["stripe_private_test_key"])
@@ -38,15 +39,14 @@ module.exports = async () => {
     const server = http.createServer(app)
     const io = new Server(server);
 
+    io.on('connection', (socket) => {
+        JEAT.logger.info(`A client connected`)
+        socketControllers(socket);
+    })
+    
     app.get('/', (req, res) => {
         res.sendFile(__dirname + '/socketTesting.html');
     });
-
-    io.on('connection', (socket) => {
-        JEAT.logger.info(`A client connected`)
-        ctrl.socket.handleSocketEvents(socket);
-        ctrl.payment.handleSocketPaymentEvents(socket);
-    })
 
     server.listen(port,()=>{
         JEAT.logger.info(`HTTP Server: [ RUNNING ON PORT ${port} ]`)

@@ -70,22 +70,17 @@ module.exports = class restaurant{
 
     static async updateStatus(opts){
         const target = await this.getRestaurant(opts.username);
-        if (target.data().tables[opts.table][opts.itemNumber] === undefined) {
-            JEAT.logger.error(`failed to move item ${opts.itemNumber} to status ${opts.status}, item number does not exist at table`)
-            return -1
-        }
+        if (target.data().tables[opts.table][opts.itemNumber] === undefined)
+            return { error : `failed to move item ${opts.itemNumber} to status ${opts.status}, item number does not exist at table`}
 
         const formerStatus = target.data().tables[opts.table][opts.itemNumber].status;
 
         let val = this.checkStatusCodeValid(formerStatus, opts.status)
 
-        if (val === -1) {
-            JEAT.logger.error(`failed to update status of item ${opts.itemNumber}, status '${opts.status}' not recognized`)
-            return -2
-        } else if (!val) {
-            JEAT.logger.error(`failed to update status of item ${opts.itemNumber}, cannot transition from status '${formerStatus}' to status '${opts.status}'`)
-            return -3
-        }
+        if (val === -1)
+            return { error : `failed to update status of item ${opts.itemNumber}, status '${opts.status}' not recognized`}
+        if (!val)
+            return { error : `failed to update status of item ${opts.itemNumber}, cannot transition from status '${formerStatus}' to status '${opts.status}'`}
 
         let tables = target.data().tables;
 
@@ -117,25 +112,19 @@ module.exports = class restaurant{
 
     static async getTab(opts){
         const target = await this.getRestaurant(opts.username)
-        if (target.data().tables[opts.table] === undefined) {
-            JEAT.logger.error(`failed to get tab, table ${opts.table} has no open tab`);
-            return -1
-        }
+        if (target.data().tables[opts.table] === undefined)
+            return { error : `failed to get tab, table ${opts.table} has no open tab`}
 
         return target.data().tables[opts.table];
     }
 
     static async openTab(opts){
         const target = await this.getRestaurant(opts.username)
-        if (target.data().tables[opts.table]) {
-            JEAT.logger.error(`failed to open tab, table ${opts.table} is already occupied`);
-            return -1
-        }
+        if (target.data().tables[opts.table])
+            return { error : `failed to open tab, table ${opts.table} is already occupied`}
 
-        if(!this.checkRestaurantTable(target,opts.table)){
-            JEAT.logger.error("restaurant or table is not valid");
-            return -2
-        }
+        if(!this.checkRestaurantTable(target,opts.table))
+            return { error : "restaurant or table is not valid"}
 
         let tables = target.data().tables;
         tables[opts.table] = [];
@@ -151,10 +140,8 @@ module.exports = class restaurant{
     static async closeTab(opts){
         const target = await this.getRestaurant(opts.username);
 
-        if (target.data().tables[opts.table] === undefined) {
-            JEAT.logger.warn(`no tab open at table ${opts.table}`);
-            return 1
-        }
+        if (target.data().tables[opts.table] === undefined)
+            return { error : `no tab open at table ${opts.table}`}
 
         let tables = target.data().tables;
         delete tables[opts.table]
@@ -173,15 +160,11 @@ module.exports = class restaurant{
         const quantity = opts.quantity;
         const instructions = opts.instructions;
 
-        if (target.data().tables[opts.table] === undefined) {
-            JEAT.logger.error(`failed to add to tab, no tab open at table ${opts.table}`);
-            return -1
-        }
+        if (target.data().tables[opts.table] === undefined)
+            return { error : `failed to add to tab, no tab open at table ${opts.table}`}
         
-        if(!this.checkQuantityValid(target, quantity)){
-            JEAT.logger.error(`failed to add to tab, quantity ${quantity} is not valid`)
-            return -2
-        }
+        if(!this.checkQuantityValid(target, quantity))
+            return { error : `failed to add to tab, quantity ${quantity} is not valid`}
 
         let tables = target.data().tables;
         let menu = target.data().menu;
@@ -209,40 +192,30 @@ module.exports = class restaurant{
                 return
             }
         }
-
-        JEAT.logger.error(`failed to add to tab, item ${opts.item} not found on menu`);
-        return -3
+        return { error : `failed to add to tab, item ${opts.item} not found on menu` }
     }
 
     static async cancelItem(opts){
+        let error;
         const target = await this.getRestaurant(opts.username);
-        if(target.data().tables[opts.table][opts.itemNumber] === undefined){
-            JEAT.logger.error(`failed to cancel item, item number does not exist at table`)
-            return -1
-        }
+        if(target.data().tables[opts.table][opts.itemNumber] === undefined)
+            return { error : `failed to cancel item, item number does not exist at table` }
 
-        if(!this.checkQuantityValid(target, opts.quantity)){
-            JEAT.logger.error(`failed to cancel item, quantity ${opts.quantity} is not valid`)
-            return -2
-        }
+        if(!this.checkQuantityValid(target, opts.quantity))
+            return { error : `failed to cancel item, quantity ${opts.quantity} is not valid` }
 
         let tables = target.data().tables;
 
-        if (tables[opts.table][opts.itemNumber].status !== 'Order Placed') {
-            JEAT.logger.error(`failed to cancel item, item can only be canceled while in 'Order Placed' status`)
-            return -3
-        }
+        if (tables[opts.table][opts.itemNumber].status !== 'Order Placed')
+            return { error : `failed to cancel item, item can only be canceled while in 'Order Placed' status` }
 
-        if((tables[opts.table][opts.itemNumber].quantity <= opts.quantity) || (opts.quantity === 0)) {
+        if((tables[opts.table][opts.itemNumber].quantity <= opts.quantity) || (opts.quantity === 0))
             tables[opts.table].splice(opts.itemNumber, 1);
-        } else {
+        else
             tables[opts.table][opts.itemNumber].quantity -= opts.quantity;
-        }
 
-        if (target.data().tables[opts.table] === undefined) {
-            JEAT.logger.warn(`no tab open at table ${opts.table}`);
-            return 1
-        }
+        if (target.data().tables[opts.table] === undefined)
+            return { "warning" : `no tab open at table ${opts.table}`}
 
         await col.doc(opts.username).update({
             tables:tables,
@@ -305,22 +278,27 @@ module.exports = class restaurant{
             switch (newStatus) {
                 case tabStatus.ORDER_PREPARED:
                     (formerStatus === tabStatus.ORDER_PLACED || formerStatus === tabStatus.ORDER_ERR) ? valid = true : valid = false
+                    console.log('1')
                     break
                 case tabStatus.ORDER_DELIVERED:
                     (formerStatus === tabStatus.ORDER_PLACED || formerStatus === tabStatus.ORDER_PREPARED 
                         || formerStatus === tabStatus.ORDER_ERR) ? valid = true : valid = false
+                    console.log('2')
                     break
                 case tabStatus.PAYMENT_COMPLETED:
                     (formerStatus !== tabStatus.PAYMENT_COMPLETED) ? valid = true : valid = false
+                    console.log('3')
                     break
                 case tabStatus.PAYMENT_FAILED:
                     (formerStatus !== tabStatus.PAYMENT_COMPLETED) ? valid = true : valid = false
+                    console.log('4')
                     break
                 case tabStatus.ORDER_ERR:
                     (formerStatus !== tabStatus.ORDER_ERR || formerStatus !== tabStatus.PAYMENT_COMPLETED) ? valid = true : valid = false
                     break
                 default:
                     valid = false;
+                    console.log('die')
                     break
             }
         }

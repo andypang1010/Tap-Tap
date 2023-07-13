@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<!-- FILE FOR TESTING SOCKET.IO/TAB FUNCTIONALITY -->
+<!-- FILE FOR TESTING SOCKET.IO CONTROLLER FUNCTIONALITY -->
 
 <html>
 <head>
@@ -34,37 +34,41 @@
     let form = document.getElementById('form');
     let input = document.getElementById('input');
 
-    socket.on('paymentIntentCreated', async (data) => {
+    /*socket.on('paymentIntentCreated', async (data) => {
       const clientSecret = data.clientSecret;
       completePayment(clientSecret);
     });
 
     socket.on('checkoutSessionCreated', async (data) => {
       console.log(data.url);
-    });
-
-    socket.on('error', async (error) => {
-      console.log(error);
-    })
+    });*/
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       
-      /*socket.emit('addToTab', {
+      socket.emit('updateStatus', {
         restaurantName: 'jefferywcg983706603',
         table: 1,
-        item: "Tonkatsu ramen",
         quantity: 2,
+        item: "Tonkatsu ramen",
         specialInstructions: "No ramen",
         itemNumber: 0,
         newStatus: 'Order Prepared',
-      });*/
+      });
 
-      socket.emit('createCheckoutSession', {
+      socket.on('error', async (data) => {
+        console.log(data.error);
+      });
+
+      socket.on('warning', async (data) => {
+        console.log(data.warning);
+      });
+
+      /*socket.emit('createCheckoutSession', {
         restaurantName: 'jefferywcg983706603',
         table: 1,
         amount: 100,
-      });
+      });*/
 
       input.value = '';
     });
