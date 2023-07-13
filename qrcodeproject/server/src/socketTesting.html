@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<!-- FILE FOR TESTING SOCKET.IO/TAB FUNCTIONALITY -->
+
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Socket Testing</title>
+  <style>
+      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; top: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+      #input:focus { outline: none; }
+      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+  </style>
+</head>
+<body>
+
+  <main>
+    <form id="form" action="">
+      <input id="input" autocomplete="off" /><button>Open Tab</button>
+    </form>
+
+    <label for="payment-element">Card</label>
+    <div id="payment-element"></div>
+  </main>
+  
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script>
+    let socket = io.connect("http://localhost:8008");
+
+    let form = document.getElementById('form');
+    let input = document.getElementById('input');
+
+    socket.on('paymentIntentCreated', async (data) => {
+      const clientSecret = data.clientSecret;
+      completePayment(clientSecret);
+    });
+
+    socket.on('checkoutSessionCreated', async (data) => {
+      console.log(data.url);
+    });
+
+    socket.on('error', async (error) => {
+      console.log(error);
+    })
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      /*socket.emit('addToTab', {
+        restaurantName: 'jefferywcg983706603',
+        table: 1,
+        item: "Tonkatsu ramen",
+        quantity: 2,
+        specialInstructions: "No ramen",
+        itemNumber: 0,
+        newStatus: 'Order Prepared',
+      });*/
+
+      socket.emit('createCheckoutSession', {
+        restaurantName: 'jefferywcg983706603',
+        table: 1,
+        amount: 100,
+      });
+
+      input.value = '';
+    });
+
+    /*function completePayment(clientSecret) {
+      const stripe = Stripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
+
+      const appearance = { };
+      const options = { };
+      const elements = stripe.elements({ clientSecret, appearance });
+      const paymentElement = elements.create('payment', options);
+      paymentElement.mount('#payment-element');
+
+      // Confirm the payment with the client secret
+      stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: paymentElement, // Replace cardElement with your actual card element from Stripe Elements
+        },
+      })
+      .then((result) => {
+        if (result.error) {
+          console.error(result.error.message);
+        } else {
+          console.log('Payment succeeded:', result.paymentIntent);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    }*/
+  </script>
+</body>
+</html>

@@ -13,11 +13,11 @@ function SectionsScroll({ sections }) {
   return (
     <>
       <nav id={"section-scroll"} className={"navbar container container-fluid sticky-top"} style={sectionScrollStyle}>
-        <ul className="nav nav-pills flex-row flex-nowrap" style={{ "overflow-x": "auto", "overflow-y": "hidden" }} >
+        <ul className="nav nav-pills flex-row flex-nowrap" style={{ "overflowX": "auto", "overflowY": "hidden" }} >
           {
             sections.map(sec =>
               <li className="nav-item">
-                <a class="nav-link" href={"#" + sec} style={sectionStyle}>{sec}</a>
+                <a className="nav-link" href={"#" + sec} style={sectionStyle}>{sec}</a>
               </li>)
           }
         </ul>

@@ -8,6 +8,7 @@ import salmonRollPicture from "../media/mahmoud-fawzy-EqoCUzG9200-unsplash.jpg"
 import crabRiceBowlPicture from "../media/mahmoud-fawzy-BOJ8RP7-VQA-unsplash.jpg"
 import avocadoTunaSushiPicture from "../media/Shrimp Roll.jpg"
 import { Link } from "react-router-dom";
+import { AxiosProvider, Request, Get, Delete, Head, Post, Put, Patch, withAxios } from 'react-axios'
 
 const buttonStyle = {
   margin: "auto",
@@ -34,6 +35,16 @@ const buttonTextStyle = {
 function Menu({ name, altName, img }) {
   return (
     <>
+      <Get url="http://localhost:8008/getMenu" params={{ "table": "1", "name": "jefferywcg1234" }}>
+        {(error, response) => {
+          if (error) {
+            console.log(error)
+          }
+          else if (response !== null) {
+            console.log(response.data)
+          }
+        }}
+      </Get>
       <Header name={name} altName={altName} img={img} />
       {/* <SearchBar /> */}
       <SectionsScroll sections={["Popular", "Appetizers", "Rolls", "Sashimi", "Sushi", "Rice", "Drinks"]} />
